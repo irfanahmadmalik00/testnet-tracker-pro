@@ -6,105 +6,106 @@ import { Video, VideoCategory, VideoState } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 interface VideoActions {
-  addVideo: (video: Omit<Video, 'id' | 'pinned' | 'createdAt'>) => void;
+  addVideo: (video: Omit<Video, 'id' | 'userId' | 'pinned' | 'createdAt'> & { userId: string }) => void;
   updateVideo: (id: string, video: Partial<Video>) => void;
   deleteVideo: (id: string) => void;
   togglePinned: (id: string) => void;
   addCategory: (name: string) => void;
   getUserVideos: (userId: string) => Video[];
-  getPinnedVideos: () => Video[];
-  initializeDefaultVideos: () => void;
+  getPinnedVideos: (userId: string) => Video[];
 }
 
 // Define default categories
 const defaultCategories: VideoCategory[] = [
-  { id: '1', name: 'Tutorials' },
-  { id: '2', name: 'Crypto News' },
-  { id: '3', name: 'Airdrops' },
-  { id: '4', name: 'Testnets' }
+  { id: '1', name: 'Crypto Tutorials' },
+  { id: '2', name: 'Airdrop Guides' },
+  { id: '3', name: 'Testnet Walkthroughs' },
+  { id: '4', name: 'Market Analysis' },
+  { id: '5', name: 'NFT Guides' },
+  { id: '6', name: 'DeFi Tutorials' }
 ];
 
-// Default videos (based on the YouTube links provided)
+// Create default videos with admin ID
 const defaultVideos: Video[] = [
   {
-    id: 'v1',
+    id: '1',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 1',
-    category: 'Tutorials',
-    description: 'Comprehensive guide to crypto airdrops and testnets',
+    title: 'Crypto Airdrop Guide 2023',
+    category: 'Airdrop Guides',
+    description: 'Complete guide to finding and claiming crypto airdrops in 2023.',
     videoId: 'lN3BCkDFQ08',
-    pinned: false,
+    pinned: true,
     createdAt: Date.now() - 1000000
   },
   {
-    id: 'v2',
+    id: '2',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 2',
-    category: 'Tutorials',
-    description: 'Learn how to participate in crypto airdrops effectively',
+    title: 'How to Join Testnets',
+    category: 'Testnet Walkthroughs',
+    description: 'Step-by-step guide to joining crypto testnets for rewards.',
     videoId: 'qLfyHsepqao',
     pinned: false,
-    createdAt: Date.now() - 900000
+    createdAt: Date.now() - 2000000
   },
   {
-    id: 'v3',
+    id: '3',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 3',
-    category: 'Airdrops',
-    description: 'Latest airdrops and how to claim them',
+    title: 'Best Crypto Tools for Beginners',
+    category: 'Crypto Tutorials',
+    description: 'Essential tools for every crypto enthusiast and trader.',
     videoId: 'aE3gXyzomMY',
     pinned: false,
-    createdAt: Date.now() - 800000
+    createdAt: Date.now() - 3000000
   },
   {
-    id: 'v4',
+    id: '4',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 4',
-    category: 'Testnets',
-    description: 'Guide to participating in popular testnets',
+    title: 'NFT Market Analysis',
+    category: 'Market Analysis',
+    description: 'In-depth look at the current state of the NFT market.',
     videoId: 'tGBVa74Pwm0',
     pinned: false,
-    createdAt: Date.now() - 700000
+    createdAt: Date.now() - 4000000
   },
   {
-    id: 'v5',
+    id: '5',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 5',
-    category: 'Crypto News',
-    description: 'Latest developments in the crypto space',
+    title: 'DeFi Yield Farming Strategy',
+    category: 'DeFi Tutorials',
+    description: 'Advanced strategies for DeFi yield farming and liquidity provision.',
     videoId: 'hfiyu3O8TLc',
     pinned: false,
-    createdAt: Date.now() - 600000
+    createdAt: Date.now() - 5000000
   },
   {
-    id: 'v6',
+    id: '6',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 6',
-    category: 'Tutorials',
-    description: 'Advanced techniques for crypto trading',
+    title: 'Crypto Tax Guide',
+    category: 'Crypto Tutorials',
+    description: 'Everything you need to know about crypto taxes and reporting.',
     videoId: '3o4rO-_-Ww4',
     pinned: false,
-    createdAt: Date.now() - 500000
+    createdAt: Date.now() - 6000000
   },
   {
-    id: 'v7',
+    id: '7',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 7',
-    category: 'Airdrops',
-    description: 'How to find the best airdrops',
+    title: 'Layer 2 Solutions Explained',
+    category: 'Crypto Tutorials',
+    description: 'Comprehensive guide to Ethereum L2 scaling solutions.',
     videoId: 'S0svZPP87GI',
     pinned: false,
-    createdAt: Date.now() - 400000
+    createdAt: Date.now() - 7000000
   },
   {
-    id: 'v8',
+    id: '8',
     userId: 'admin-1',
-    title: 'Crypto Video Tutorial 8',
-    category: 'Testnets',
-    description: 'Complete guide to testnet participation',
+    title: 'How to Use MetaMask',
+    category: 'Crypto Tutorials',
+    description: 'Complete beginner\'s guide to setting up and using MetaMask.',
     videoId: 'LFcnInoKdqg',
     pinned: false,
-    createdAt: Date.now() - 300000
+    createdAt: Date.now() - 8000000
   }
 ];
 
@@ -112,18 +113,10 @@ const defaultVideos: Video[] = [
 const useVideoStore = create<VideoState & VideoActions>()(
   persist(
     (set, get) => ({
-      videos: [],
+      videos: defaultVideos,
       categories: defaultCategories,
       isLoading: false,
       error: null,
-
-      // Initialize default videos
-      initializeDefaultVideos: () => {
-        const existingVideos = get().videos;
-        if (existingVideos.length === 0) {
-          set({ videos: defaultVideos });
-        }
-      },
 
       // Add a new video
       addVideo: (videoData) => {
@@ -197,10 +190,10 @@ const useVideoStore = create<VideoState & VideoActions>()(
         return videos.filter((video) => video.userId === userId);
       },
 
-      // Get pinned videos
-      getPinnedVideos: () => {
+      // Get pinned videos for specific user
+      getPinnedVideos: (userId) => {
         const videos = get().videos;
-        return videos.filter((video) => video.pinned);
+        return videos.filter((video) => video.userId === userId && video.pinned);
       }
     }),
     {
