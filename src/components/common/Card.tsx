@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CardProps {
   children: React.ReactNode;
   isPinned?: boolean;
   isCompleted?: boolean;
@@ -20,12 +20,14 @@ const Card = ({
   variant = 'default',
   onClick,
   ...props
-}: CardProps) => {
+}: CardProps & Omit<HTMLMotionProps<"div">, "onClick">) => {
   const cardVariants = {
     default: 'bg-card border border-border shadow-subtle',
     glass: 'glass-morphism',
     neo: 'neo-morphism'
   };
+
+  const handleClick = onClick ? (e: React.MouseEvent<HTMLDivElement>) => onClick(e) : undefined;
 
   return (
     <motion.div
@@ -39,7 +41,7 @@ const Card = ({
         isCompleted && 'opacity-75',
         className
       )}
-      onClick={onClick}
+      onClick={handleClick}
       {...props}
     >
       {isPinned && (

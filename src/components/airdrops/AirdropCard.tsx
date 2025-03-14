@@ -24,7 +24,7 @@ const AirdropCard = ({
 }: AirdropCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
 
-  const toggleDetails = (e: React.MouseEvent) => {
+  const toggleDetails = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     setShowDetails(!showDetails);
   };
