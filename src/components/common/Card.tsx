@@ -9,7 +9,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   isCompleted?: boolean;
   className?: string;
   variant?: 'default' | 'glass' | 'neo';
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const Card = ({
