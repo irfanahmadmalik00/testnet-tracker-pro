@@ -5,14 +5,15 @@ import { toast } from 'sonner';
 import { AuthState, User } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
-const VALID_INVITE_CODE = 'ishowcryptoairdrops';
+// Updated invite code validation
+const VALID_INVITE_CODES = ['ishowcryptoairdrops', 'web3airdrops', 'cryptoairdrop'];
 const SPECIAL_USER_EMAIL = 'malickirfan00@gmail.com';
 const SPECIAL_USER_PASSWORD = 'Irfan@123#13';
 const SPECIAL_USERNAME = 'UmarCryptospace';
 
 interface AuthActions {
   login: (email: string, password: string) => Promise<boolean>;
-  register: (username: string, email: string, password: string, inviteCode: string) => Promise<boolean>;
+  register: (username: string, email: string, password: string, inviteCode: string, telegramUsername: string) => Promise<boolean>;
   logout: () => void;
   checkAuth: () => boolean;
 }
@@ -40,7 +41,8 @@ const useAuthStore = create<AuthState & AuthActions>()(
               id: 'admin-1',
               email: SPECIAL_USER_EMAIL,
               username: SPECIAL_USERNAME,
-              isAdmin: true
+              isAdmin: true,
+              telegramUsername: 'admin'
             };
             
             set({ user, isAuthenticated: true, isAuthLoading: false });
@@ -84,18 +86,25 @@ const useAuthStore = create<AuthState & AuthActions>()(
         }
       },
 
-      // Handle registration
-      register: async (username: string, email: string, password: string, inviteCode: string) => {
+      // Handle registration with Telegram validation
+      register: async (username: string, email: string, password: string, inviteCode: string, telegramUsername: string) => {
         set({ isAuthLoading: true, error: null });
         
         try {
           // Simulate API call
           await new Promise(resolve => setTimeout(resolve, 800));
           
-          // Validate invite code
-          if (inviteCode !== VALID_INVITE_CODE) {
+          // Validate invite code (now checks against array of valid codes)
+          if (!VALID_INVITE_CODES.includes(inviteCode.toLowerCase())) {
             set({ isAuthLoading: false, error: 'Invalid invite code' });
             toast.error('Invalid invite code');
+            return false;
+          }
+          
+          // Validate Telegram username
+          if (!telegramUsername || telegramUsername.trim() === '') {
+            set({ isAuthLoading: false, error: 'Telegram username is required' });
+            toast.error('Please provide your Telegram username after joining the channel');
             return false;
           }
           
@@ -110,12 +119,13 @@ const useAuthStore = create<AuthState & AuthActions>()(
             return false;
           }
           
-          // Create new user
+          // Create new user with Telegram username
           const newUser: User = {
             id: uuidv4(),
             email,
             username,
-            isAdmin: email === SPECIAL_USER_EMAIL
+            isAdmin: email === SPECIAL_USER_EMAIL,
+            telegramUsername
           };
           
           // Save user

@@ -23,6 +23,14 @@ const Register = () => {
           <p className="text-center text-muted-foreground mb-6">
             Track and manage your crypto airdrops, testnets, and tools in one place.
           </p>
+          <div className="mb-6 p-4 border border-primary/20 bg-primary/5 rounded-lg">
+            <h3 className="font-semibold mb-2">Registration Steps:</h3>
+            <ol className="list-decimal pl-5 space-y-1 text-sm">
+              <li>Enter your details and an invite code</li>
+              <li>Join our Telegram group (t.me/Web3_Airdrops_Education)</li>
+              <li>Enter your Telegram username to complete registration</li>
+            </ol>
+          </div>
           <AuthForm type="register" />
         </div>
       </div>
