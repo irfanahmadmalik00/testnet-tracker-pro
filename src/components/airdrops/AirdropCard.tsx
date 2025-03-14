@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Card from '@/components/common/Card';
 import CategoryBadge from '@/components/common/CategoryBadge';
@@ -24,7 +23,7 @@ const AirdropCard = ({
 }: AirdropCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
 
-  const toggleDetails = (e: React.MouseEvent<HTMLDivElement>) => {
+  const toggleDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowDetails(!showDetails);
   };
