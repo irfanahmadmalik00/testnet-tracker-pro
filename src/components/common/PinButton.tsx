@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 interface PinButtonProps {
   isPinned: boolean;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   className?: string;
 }
 
