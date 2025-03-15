@@ -14,6 +14,8 @@ interface AirdropActions {
   addCategory: (name: string) => void;
   getUserAirdrops: (userId: string) => Airdrop[];
   getPinnedAirdrops: (userId: string) => Airdrop[];
+  resetCompletedAirdrops: () => void;
+  checkDailyReset: () => void;
 }
 
 // Define default categories
@@ -36,6 +38,7 @@ const useAirdropStore = create<AirdropState & AirdropActions>()(
       categories: defaultCategories,
       isLoading: false,
       error: null,
+      lastResetDate: new Date().toDateString(),
 
       // Add a new airdrop
       addAirdrop: (airdropData) => {
@@ -108,6 +111,16 @@ const useAirdropStore = create<AirdropState & AirdropActions>()(
 
       // Add a new category
       addCategory: (name) => {
+        // Check if the category already exists
+        const categoryExists = get().categories.some(
+          (category) => category.name.toLowerCase() === name.toLowerCase()
+        );
+
+        if (categoryExists) {
+          toast.error('Category already exists');
+          return;
+        }
+        
         const newCategory: AirdropCategory = {
           id: uuidv4(),
           name
@@ -130,6 +143,28 @@ const useAirdropStore = create<AirdropState & AirdropActions>()(
       getPinnedAirdrops: (userId) => {
         const airdrops = get().airdrops;
         return airdrops.filter((airdrop) => airdrop.userId === userId && airdrop.pinned);
+      },
+
+      // Reset all completed airdrops to uncompleted
+      resetCompletedAirdrops: () => {
+        set((state) => ({
+          airdrops: state.airdrops.map((airdrop) => 
+            airdrop.completed ? { ...airdrop, completed: false } : airdrop
+          ),
+          lastResetDate: new Date().toDateString()
+        }));
+        
+        toast.success('Daily airdrops have been reset');
+      },
+
+      // Check if a daily reset is needed
+      checkDailyReset: () => {
+        const today = new Date().toDateString();
+        const lastReset = get().lastResetDate;
+        
+        if (today !== lastReset) {
+          get().resetCompletedAirdrops();
+        }
       }
     }),
     {

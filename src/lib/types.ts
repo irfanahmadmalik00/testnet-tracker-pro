@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -90,6 +91,7 @@ export interface AirdropState {
   categories: AirdropCategory[];
   isLoading: boolean;
   error: string | null;
+  lastResetDate: string;
 }
 
 export interface TestnetState {
