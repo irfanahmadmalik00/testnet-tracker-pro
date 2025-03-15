@@ -4,8 +4,16 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './styles/globals.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+// Wait for DOM content to be fully loaded before rendering
+document.addEventListener('DOMContentLoaded', () => {
+  const rootElement = document.getElementById('root');
+  if (rootElement) {
+    ReactDOM.createRoot(rootElement).render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    );
+  } else {
+    console.error('Root element not found');
+  }
+});
