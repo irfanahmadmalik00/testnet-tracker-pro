@@ -6,7 +6,7 @@ import useToolStore from '@/lib/stores/toolStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CategorySelect from '@/components/common/CategorySelect';
 import { X } from 'lucide-react';
 
 interface ToolFormProps {
@@ -23,13 +23,11 @@ const ToolForm = ({ userId, onClose, editingTool }: ToolFormProps) => {
     category: string;
     description: string;
     link: string;
-    newCategory: string;
   }>({
     title: '',
     category: categories[0]?.name || '',
     description: '',
-    link: '',
-    newCategory: ''
+    link: ''
   });
 
   const [errors, setErrors] = useState<{
@@ -46,8 +44,7 @@ const ToolForm = ({ userId, onClose, editingTool }: ToolFormProps) => {
         title: editingTool.title,
         category: editingTool.category,
         description: editingTool.description,
-        link: editingTool.link,
-        newCategory: ''
+        link: editingTool.link
       });
     }
   }, [editingTool]);
@@ -68,15 +65,18 @@ const ToolForm = ({ userId, onClose, editingTool }: ToolFormProps) => {
     }
   };
 
-  const handleAddCategory = () => {
-    if (!formData.newCategory.trim()) return;
-    
-    addCategory(formData.newCategory);
+  const handleCategoryChange = (category: string) => {
     setFormData(prev => ({
       ...prev,
-      category: formData.newCategory,
-      newCategory: ''
+      category
     }));
+    
+    if (errors.category) {
+      setErrors(prev => ({
+        ...prev,
+        category: undefined
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -184,36 +184,13 @@ const ToolForm = ({ userId, onClose, editingTool }: ToolFormProps) => {
               <label htmlFor="category" className="block text-sm font-medium">
                 Category
               </label>
-              <div className="flex gap-2">
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                >
-                  <SelectTrigger className="flex-grow">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Add new category */}
-              <div className="flex gap-2 mt-2">
-                <Input
-                  placeholder="Add new category"
-                  value={formData.newCategory}
-                  onChange={(e) => setFormData(prev => ({ ...prev, newCategory: e.target.value }))}
-                />
-                <Button type="button" onClick={handleAddCategory} disabled={!formData.newCategory.trim()}>
-                  Add
-                </Button>
-              </div>
-              
+              <CategorySelect
+                categories={categories}
+                selectedCategory={formData.category}
+                onCategoryChange={handleCategoryChange}
+                onAddCategory={addCategory}
+                placeholder="Select tool category"
+              />
               {errors.category && <p className="text-destructive text-xs">{errors.category}</p>}
             </div>
             

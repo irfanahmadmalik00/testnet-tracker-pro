@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Airdrop } from '@/lib/types';
@@ -6,6 +5,7 @@ import useAirdropStore from '@/lib/stores/airdropStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import CategorySelect from '@/components/common/CategorySelect';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,7 +16,7 @@ interface AirdropFormProps {
   editingAirdrop: Airdrop | null;
 }
 
-const AirdropForm = ({ userId, onClose, editingAirdrop }: AirdropFormProps) => {
+const AirdropForm: React.FC<AirdropFormProps> = ({ userId, onClose, editingAirdrop }) => {
   const { addAirdrop, updateAirdrop, categories, addCategory } = useAirdropStore();
   
   const [formData, setFormData] = useState<{
@@ -28,7 +28,6 @@ const AirdropForm = ({ userId, onClose, editingAirdrop }: AirdropFormProps) => {
     rewards: string;
     timeCommitment: string;
     workRequired: string;
-    newCategory: string;
   }>({
     title: '',
     category: categories[0]?.name || '',
@@ -37,8 +36,7 @@ const AirdropForm = ({ userId, onClose, editingAirdrop }: AirdropFormProps) => {
     fundingAmount: '',
     rewards: '',
     timeCommitment: '',
-    workRequired: '',
-    newCategory: ''
+    workRequired: ''
   });
 
   const [errors, setErrors] = useState<{
@@ -48,7 +46,7 @@ const AirdropForm = ({ userId, onClose, editingAirdrop }: AirdropFormProps) => {
     links?: string;
   }>({});
 
-  // If editing, populate form with airdrop data
+  // Populate form data if editing
   useEffect(() => {
     if (editingAirdrop) {
       setFormData({
@@ -59,8 +57,7 @@ const AirdropForm = ({ userId, onClose, editingAirdrop }: AirdropFormProps) => {
         fundingAmount: editingAirdrop.fundingAmount,
         rewards: editingAirdrop.rewards,
         timeCommitment: editingAirdrop.timeCommitment,
-        workRequired: editingAirdrop.workRequired,
-        newCategory: ''
+        workRequired: editingAirdrop.workRequired
       });
     }
   }, [editingAirdrop]);
@@ -72,11 +69,25 @@ const AirdropForm = ({ userId, onClose, editingAirdrop }: AirdropFormProps) => {
       [name]: value
     }));
     
-    // Clear error for this field
+    // Clear error
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({
         ...prev,
         [name]: undefined
+      }));
+    }
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setFormData(prev => ({
+      ...prev,
+      category
+    }));
+    
+    if (errors.category) {
+      setErrors(prev => ({
+        ...prev,
+        category: undefined
       }));
     }
   };
@@ -227,36 +238,13 @@ const AirdropForm = ({ userId, onClose, editingAirdrop }: AirdropFormProps) => {
               <label htmlFor="category" className="block text-sm font-medium">
                 Category
               </label>
-              <div className="flex gap-2">
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                >
-                  <SelectTrigger className="flex-grow">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Add new category */}
-              <div className="flex gap-2 mt-2">
-                <Input
-                  placeholder="Add new category"
-                  value={formData.newCategory}
-                  onChange={(e) => setFormData(prev => ({ ...prev, newCategory: e.target.value }))}
-                />
-                <Button type="button" onClick={handleAddCategory} disabled={!formData.newCategory.trim()}>
-                  Add
-                </Button>
-              </div>
-              
+              <CategorySelect
+                categories={categories}
+                selectedCategory={formData.category}
+                onCategoryChange={handleCategoryChange}
+                onAddCategory={addCategory}
+                placeholder="Select airdrop category"
+              />
               {errors.category && <p className="text-destructive text-xs">{errors.category}</p>}
             </div>
             

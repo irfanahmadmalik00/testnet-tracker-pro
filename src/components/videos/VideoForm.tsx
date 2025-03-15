@@ -6,7 +6,7 @@ import useVideoStore from '@/lib/stores/videoStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CategorySelect from '@/components/common/CategorySelect';
 import { X } from 'lucide-react';
 
 interface VideoFormProps {
@@ -23,13 +23,11 @@ const VideoForm = ({ userId, onClose, editingVideo }: VideoFormProps) => {
     category: string;
     description: string;
     videoId: string;
-    newCategory: string;
   }>({
     title: '',
     category: categories[0]?.name || '',
     description: '',
-    videoId: '',
-    newCategory: ''
+    videoId: ''
   });
 
   const [errors, setErrors] = useState<{
@@ -46,8 +44,7 @@ const VideoForm = ({ userId, onClose, editingVideo }: VideoFormProps) => {
         title: editingVideo.title,
         category: editingVideo.category,
         description: editingVideo.description,
-        videoId: editingVideo.videoId,
-        newCategory: ''
+        videoId: editingVideo.videoId
       });
     }
   }, [editingVideo]);
@@ -68,15 +65,18 @@ const VideoForm = ({ userId, onClose, editingVideo }: VideoFormProps) => {
     }
   };
 
-  const handleAddCategory = () => {
-    if (!formData.newCategory.trim()) return;
-    
-    addCategory(formData.newCategory);
+  const handleCategoryChange = (category: string) => {
     setFormData(prev => ({
       ...prev,
-      category: formData.newCategory,
-      newCategory: ''
+      category
     }));
+    
+    if (errors.category) {
+      setErrors(prev => ({
+        ...prev,
+        category: undefined
+      }));
+    }
   };
 
   const extractYouTubeId = (url: string): string => {
@@ -191,36 +191,13 @@ const VideoForm = ({ userId, onClose, editingVideo }: VideoFormProps) => {
               <label htmlFor="category" className="block text-sm font-medium">
                 Category
               </label>
-              <div className="flex gap-2">
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                >
-                  <SelectTrigger className="flex-grow">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Add new category */}
-              <div className="flex gap-2 mt-2">
-                <Input
-                  placeholder="Add new category"
-                  value={formData.newCategory}
-                  onChange={(e) => setFormData(prev => ({ ...prev, newCategory: e.target.value }))}
-                />
-                <Button type="button" onClick={handleAddCategory} disabled={!formData.newCategory.trim()}>
-                  Add
-                </Button>
-              </div>
-              
+              <CategorySelect
+                categories={categories}
+                selectedCategory={formData.category}
+                onCategoryChange={handleCategoryChange}
+                onAddCategory={addCategory}
+                placeholder="Select video category"
+              />
               {errors.category && <p className="text-destructive text-xs">{errors.category}</p>}
             </div>
             

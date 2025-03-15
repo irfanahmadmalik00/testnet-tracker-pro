@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Testnet } from '@/lib/types';
@@ -6,8 +5,8 @@ import useTestnetStore from '@/lib/stores/testnetStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
+import CategorySelect from '@/components/common/CategorySelect';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -27,15 +26,13 @@ const TestnetForm = ({ userId, onClose, editingTestnet }: TestnetFormProps) => {
     links: Array<{id: string; name: string; url: string}>;
     progress: number;
     rewards: string;
-    newCategory: string;
   }>({
     title: '',
     category: categories[0]?.name || '',
     description: '',
     links: [{ id: uuidv4(), name: '', url: '' }],
     progress: 0,
-    rewards: '',
-    newCategory: ''
+    rewards: ''
   });
 
   const [errors, setErrors] = useState<{
@@ -54,8 +51,7 @@ const TestnetForm = ({ userId, onClose, editingTestnet }: TestnetFormProps) => {
         description: editingTestnet.description,
         links: editingTestnet.links.length > 0 ? editingTestnet.links : [{ id: uuidv4(), name: '', url: '' }],
         progress: editingTestnet.progress,
-        rewards: editingTestnet.rewards,
-        newCategory: ''
+        rewards: editingTestnet.rewards
       });
     }
   }, [editingTestnet]);
@@ -72,6 +68,20 @@ const TestnetForm = ({ userId, onClose, editingTestnet }: TestnetFormProps) => {
       setErrors(prev => ({
         ...prev,
         [name]: undefined
+      }));
+    }
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setFormData(prev => ({
+      ...prev,
+      category
+    }));
+    
+    if (errors.category) {
+      setErrors(prev => ({
+        ...prev,
+        category: undefined
       }));
     }
   };
@@ -225,36 +235,13 @@ const TestnetForm = ({ userId, onClose, editingTestnet }: TestnetFormProps) => {
               <label htmlFor="category" className="block text-sm font-medium">
                 Category
               </label>
-              <div className="flex gap-2">
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                >
-                  <SelectTrigger className="flex-grow">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Add new category */}
-              <div className="flex gap-2 mt-2">
-                <Input
-                  placeholder="Add new category"
-                  value={formData.newCategory}
-                  onChange={(e) => setFormData(prev => ({ ...prev, newCategory: e.target.value }))}
-                />
-                <Button type="button" onClick={handleAddCategory} disabled={!formData.newCategory.trim()}>
-                  Add
-                </Button>
-              </div>
-              
+              <CategorySelect
+                categories={categories}
+                selectedCategory={formData.category}
+                onCategoryChange={handleCategoryChange}
+                onAddCategory={addCategory}
+                placeholder="Select testnet category"
+              />
               {errors.category && <p className="text-destructive text-xs">{errors.category}</p>}
             </div>
             
