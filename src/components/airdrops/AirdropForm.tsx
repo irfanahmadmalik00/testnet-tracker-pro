@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import CategorySelect from '@/components/common/CategorySelect';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -114,17 +113,6 @@ const AirdropForm: React.FC<AirdropFormProps> = ({ userId, onClose, editingAirdr
     setFormData(prev => ({
       ...prev,
       links: prev.links.filter(link => link.id !== id)
-    }));
-  };
-
-  const handleAddCategory = () => {
-    if (!formData.newCategory.trim()) return;
-    
-    addCategory(formData.newCategory);
-    setFormData(prev => ({
-      ...prev,
-      category: formData.newCategory,
-      newCategory: ''
     }));
   };
 
