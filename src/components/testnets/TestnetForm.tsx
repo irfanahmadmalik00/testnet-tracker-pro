@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Testnet } from '@/lib/types';
@@ -118,16 +119,7 @@ const TestnetForm = ({ userId, onClose, editingTestnet }: TestnetFormProps) => {
     }));
   };
 
-  const handleAddCategory = () => {
-    if (!formData.newCategory.trim()) return;
-    
-    addCategory(formData.newCategory);
-    setFormData(prev => ({
-      ...prev,
-      category: formData.newCategory,
-      newCategory: ''
-    }));
-  };
+  // Removed the handleAddCategory function since we're now using the CategorySelect component to handle this
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
